@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { PageProps } from '@/types';
 import { Github, Menu, Plus } from 'lucide-react';
 import LanguageToggle from '@/components/language-toggle';
@@ -32,9 +33,14 @@ export default function AppLayout({
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-14 items-center justify-between">
                         <div className="flex items-center gap-6">
-                            <Link href="/" className="text-lg font-semibold tracking-tight">
-                                {t('nav.civicForum')}
-                            </Link>
+                            <div className="flex items-center gap-2">
+                                <Link href="/" className="text-lg font-semibold tracking-tight">
+                                    {t('nav.civicForum')}
+                                </Link>
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                    janrashtra.in
+                                </Badge>
+                            </div>
 
                             <div className="hidden items-center gap-1 md:flex">
                                 <Link href="/">
@@ -158,9 +164,14 @@ export default function AppLayout({
             <footer className="mt-12 border-t py-8">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-                        <p className="text-sm text-muted-foreground">
-                            {t('footer.tagline')}
-                        </p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm text-muted-foreground">
+                                {t('footer.tagline')}
+                            </p>
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                janrashtra.in
+                            </Badge>
+                        </div>
                         <div className="flex gap-4 text-sm text-muted-foreground">
                             <Link href="/" className="hover:text-foreground">{t('nav.home')}</Link>
                             <Link href="/search" className="hover:text-foreground">{t('nav.search')}</Link>

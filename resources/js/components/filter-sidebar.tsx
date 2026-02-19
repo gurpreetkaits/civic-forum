@@ -8,7 +8,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { PageProps } from '@/types';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,7 @@ import CategoryIcon from '@/components/category-icon';
 interface FilterSidebarProps {
     currentFilters: {
         state_id?: string;
-        category_slug?: string;
+        category?: string;
         sort?: string;
     };
     baseUrl: string;
@@ -39,16 +38,39 @@ export default function FilterSidebar({
     const applyFilter = (key: string, value: string | undefined) => {
         const params: Record<string, string> = {};
 
-        // Preserve existing filters
         if (currentFilters.state_id) params.state_id = currentFilters.state_id;
-        if (currentFilters.category_slug) params.category_slug = currentFilters.category_slug;
         if (currentFilters.sort) params.sort = currentFilters.sort;
 
-        // Apply new filter
         if (value) {
             params[key] = value;
         } else {
             delete params[key];
+        }
+
+        // If selecting a category, navigate to /categories/{slug} with other filters as query params
+        if (key === 'category' && value) {
+            const categoryParams: Record<string, string> = {};
+            if (params.state_id) categoryParams.state_id = params.state_id;
+            if (params.sort) categoryParams.sort = params.sort;
+
+            router.get(`/categories/${value}`, categoryParams, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+            return;
+        }
+
+        // If clearing category and we're on a category page, go back to home
+        if (key === 'category' && !value && baseUrl !== '/') {
+            const homeParams: Record<string, string> = {};
+            if (params.state_id) homeParams.state_id = params.state_id;
+            if (params.sort) homeParams.sort = params.sort;
+
+            router.get('/', homeParams, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+            return;
         }
 
         router.get(baseUrl, params, {
@@ -130,10 +152,10 @@ export default function FilterSidebar({
                         size="sm"
                         className={cn(
                             'justify-start',
-                            !currentFilters.category_slug &&
+                            !currentFilters.category &&
                                 'bg-accent text-accent-foreground',
                         )}
-                        onClick={() => applyFilter('category_slug', undefined)}
+                        onClick={() => applyFilter('category', undefined)}
                     >
                         {t('filter.allCategories')}
                     </Button>
@@ -144,11 +166,11 @@ export default function FilterSidebar({
                             size="sm"
                             className={cn(
                                 'justify-start gap-2',
-                                currentFilters.category_slug === category.slug &&
+                                currentFilters.category === category.slug &&
                                     'bg-accent text-accent-foreground',
                             )}
                             onClick={() =>
-                                applyFilter('category_slug', category.slug)
+                                applyFilter('category', category.slug)
                             }
                         >
                             <CategoryIcon name={category.icon} />

@@ -45,7 +45,7 @@ export default function CategoryShow({ category, posts, filters }: Props) {
                 <div className="flex flex-col gap-6 lg:flex-row">
                     <aside className="w-full shrink-0 lg:w-64">
                         <FilterSidebar
-                            currentFilters={{ ...filters, category_slug: category.slug }}
+                            currentFilters={{ ...filters, category: category.slug }}
                             baseUrl={`/categories/${category.slug}`}
                         />
                     </aside>
