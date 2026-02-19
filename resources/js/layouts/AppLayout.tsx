@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { useLoginDialog } from '@/components/login-dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,6 +24,7 @@ export default function AppLayout({
     const { auth, categories } = usePage<PageProps>().props;
     const user = auth.user;
     const { t } = useTranslation();
+    const { open: openLoginDialog } = useLoginDialog();
 
     return (
         <div className="min-h-screen bg-background">
@@ -101,18 +103,9 @@ export default function AppLayout({
                                     </DropdownMenu>
                                 </>
                             ) : (
-                                <div className="flex items-center gap-2">
-                                    <Link href="/login">
-                                        <Button variant="ghost" size="sm">
-                                            {t('nav.logIn')}
-                                        </Button>
-                                    </Link>
-                                    <Link href="/register">
-                                        <Button size="sm">
-                                            {t('nav.signUp')}
-                                        </Button>
-                                    </Link>
-                                </div>
+                                <Button variant="ghost" size="sm" onClick={openLoginDialog}>
+                                    {t('nav.logIn')}
+                                </Button>
                             )}
 
                             <Sheet>

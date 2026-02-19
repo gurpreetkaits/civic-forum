@@ -5,6 +5,7 @@ import i18n from './i18n';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { LoginDialogProvider } from '@/components/login-dialog';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -20,11 +21,11 @@ createInertiaApp({
         i18n.changeLanguage(locale);
 
         if (import.meta.env.SSR) {
-            hydrateRoot(el, <App {...props} />);
+            hydrateRoot(el, <LoginDialogProvider><App {...props} /></LoginDialogProvider>);
             return;
         }
 
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(<LoginDialogProvider><App {...props} /></LoginDialogProvider>);
     },
     progress: {
         color: '#4B5563',

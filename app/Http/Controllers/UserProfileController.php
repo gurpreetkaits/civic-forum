@@ -11,10 +11,11 @@ class UserProfileController extends Controller
     public function show(Request $request, User $user)
     {
         $user->load(['state', 'city']);
+        $user->makeVisible('created_at');
 
         $posts = $user->posts()
             ->published()
-            ->with(['category', 'state', 'city'])
+            ->with(['category', 'state', 'city', 'user'])
             ->withCount('comments')
             ->orderByDesc('published_at')
             ->paginate(15)

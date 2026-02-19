@@ -3,6 +3,7 @@ import { Comment, PageProps } from '@/types';
 import CommentItem from '@/components/comment-item';
 import CommentForm from '@/components/comment-form';
 import { useTranslation } from 'react-i18next';
+import { useLoginDialog } from '@/components/login-dialog';
 
 interface CommentSectionProps {
     comments: Comment[];
@@ -16,6 +17,7 @@ export default function CommentSection({
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
     const { t } = useTranslation();
+    const { open: openLoginDialog } = useLoginDialog();
 
     const topLevelComments = comments.filter(
         (comment) => !comment.parent_id,
@@ -41,13 +43,13 @@ export default function CommentSection({
                 </div>
             ) : (
                 <div className="rounded-lg border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-                    <a href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+                    <button
+                        type="button"
+                        onClick={openLoginDialog}
+                        className="font-medium text-foreground underline-offset-4 hover:underline"
+                    >
                         {t('comments.loginLink')}
-                    </a>{' '}
-                    {t('comments.or')}{' '}
-                    <a href="/register" className="font-medium text-foreground underline-offset-4 hover:underline">
-                        {t('comments.signUpLink')}
-                    </a>{' '}
+                    </button>{' '}
                     {t('comments.loginPrompt')}
                 </div>
             )}
