@@ -36,8 +36,8 @@ Route::middleware('throttle:60,1')->group(function () {
 
 // Authenticated routes (must come before /posts/{slug} wildcard)
 Route::middleware('auth')->group(function () {
-    // Post creation - stricter limit (5 per minute)
-    Route::middleware('throttle:5,1')->group(function () {
+    // Post creation - one post per day limit
+    Route::middleware('throttle:create-post')->group(function () {
         Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     });
@@ -49,20 +49,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('/posts/{slug}', [PostController::class, 'destroy'])->name('posts.destroy');
     });
 
-    // Votes - more lenient (60 per minute)
-    Route::middleware('throttle:60,1')->group(function () {
+    // Votes
+    Route::middleware('throttle:vote')->group(function () {
         Route::post('/votes', [VoteController::class, 'store'])->name('votes.store');
     });
 
-    // Comments (10 per minute)
-    Route::middleware('throttle:10,1')->group(function () {
+    // Comments
+    Route::middleware('throttle:create-comment')->group(function () {
         Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
         Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     });
 
-    // Image uploads (20 per minute)
-    Route::middleware('throttle:20,1')->group(function () {
+    // Image uploads
+    Route::middleware('throttle:upload-image')->group(function () {
         Route::post('/uploads/images', [ImageUploadController::class, 'store'])->name('uploads.images');
     });
 
