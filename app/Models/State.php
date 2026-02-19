@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class State extends Model
+{
+    protected $fillable = ['name', 'code', 'type'];
+
+    public function cities(): HasMany
+    {
+        return $this->hasMany(City::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+}
