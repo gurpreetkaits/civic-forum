@@ -1,15 +1,50 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, PageProps } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useInfiniteScroll } from '@/hooks/use-infinite-scroll';
+import { Loader2 } from 'lucide-react';
 
 interface Props extends PageProps {
     posts?: PaginatedData<Post>;
     query: string;
+}
+
+function SearchResults({ posts, query }: { posts: PaginatedData<Post>; query: string }) {
+    const { t } = useTranslation();
+    const { items, sentinelRef, loading } = useInfiniteScroll(posts);
+
+    return (
+        <>
+            <p className="mb-4 text-sm text-muted-foreground">
+                {t('search.resultsCount', { count: posts.total, query })}
+            </p>
+
+            {items.length === 0 ? (
+                <div className="rounded-lg border bg-card p-8 text-center">
+                    <p className="text-muted-foreground">{t('search.noResults')}</p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {items.map((post) => (
+                        <PostCard key={post.id} post={post} />
+                    ))}
+                </div>
+            )}
+
+            <div ref={sentinelRef} className="py-4">
+                {loading && (
+                    <div className="flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                )}
+            </div>
+        </>
+    );
 }
 
 export default function Search({ posts, query }: Props) {
@@ -49,43 +84,7 @@ export default function Search({ posts, query }: Props) {
                 </form>
 
                 {query && posts && (
-                    <>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                            {t('search.resultsCount', { count: posts.total, query })}
-                        </p>
-
-                        {posts.data.length === 0 ? (
-                            <div className="rounded-lg border bg-card p-8 text-center">
-                                <p className="text-muted-foreground">{t('search.noResults')}</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {posts.data.map((post) => (
-                                    <PostCard key={post.id} post={post} />
-                                ))}
-                            </div>
-                        )}
-
-                        {posts.last_page > 1 && (
-                            <div className="mt-6 flex items-center justify-center gap-2">
-                                {posts.links.map((link, i) => (
-                                    <Link
-                                        key={i}
-                                        href={link.url || '#'}
-                                        className={`rounded px-3 py-1 text-sm ${
-                                            link.active
-                                                ? 'bg-primary text-primary-foreground'
-                                                : link.url
-                                                  ? 'bg-card text-foreground hover:bg-accent'
-                                                  : 'cursor-default text-muted-foreground'
-                                        }`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                        preserveScroll
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </>
+                    <SearchResults posts={posts} query={query} />
                 )}
             </div>
         </AppLayout>

@@ -1,9 +1,11 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import FilterSidebar from '@/components/filter-sidebar';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, Category, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { useInfiniteScroll } from '@/hooks/use-infinite-scroll';
+import { Loader2 } from 'lucide-react';
 
 interface Props extends PageProps {
     category: Category;
@@ -18,6 +20,7 @@ export default function CategoryShow({ category, posts, filters }: Props) {
     const { t } = useTranslation();
     const { ziggy } = usePage<PageProps>().props;
     const pageUrl = `${ziggy.url}/categories/${category.slug}`;
+    const { items, sentinelRef, loading } = useInfiniteScroll(posts);
 
     return (
         <AppLayout
@@ -48,37 +51,25 @@ export default function CategoryShow({ category, posts, filters }: Props) {
                     </aside>
 
                     <div className="flex-1">
-                        {posts.data.length === 0 ? (
+                        {items.length === 0 ? (
                             <div className="rounded-lg border bg-card p-8 text-center">
                                 <p className="text-muted-foreground">{t('location.noPostsCategory', { name: category.translated_name })}</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {posts.data.map((post) => (
+                                {items.map((post) => (
                                     <PostCard key={post.id} post={post} showCategory={false} />
                                 ))}
                             </div>
                         )}
 
-                        {posts.last_page > 1 && (
-                            <div className="mt-6 flex items-center justify-center gap-2">
-                                {posts.links.map((link, i) => (
-                                    <Link
-                                        key={i}
-                                        href={link.url || '#'}
-                                        className={`rounded px-3 py-1 text-sm ${
-                                            link.active
-                                                ? 'bg-primary text-primary-foreground'
-                                                : link.url
-                                                  ? 'bg-card text-foreground hover:bg-accent'
-                                                  : 'cursor-default text-muted-foreground'
-                                        }`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                        preserveScroll
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <div ref={sentinelRef} className="py-4">
+                            {loading && (
+                                <div className="flex justify-center">
+                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

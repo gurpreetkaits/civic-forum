@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { PageProps } from '@/types';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import CategoryIcon from '@/components/category-icon';
 
 interface FilterSidebarProps {
     currentFilters: {
@@ -150,7 +151,7 @@ export default function FilterSidebar({
                                 applyFilter('category_slug', category.slug)
                             }
                         >
-                            <span>{category.icon}</span>
+                            <CategoryIcon name={category.icon} />
                             {category.translated_name}
                         </Button>
                     ))}
