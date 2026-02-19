@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import UserAvatar from '@/components/user-avatar';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, User, Comment, PageProps } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { timeAgo } from '@/lib/utils';
@@ -15,10 +15,19 @@ interface Props extends PageProps {
 
 export default function UserShow({ profileUser, posts, comments }: Props) {
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
+    const pageUrl = `${ziggy.url}/users/${profileUser.username}`;
+    const description = profileUser.bio || `${profileUser.name} on Civic Forum`;
 
     return (
         <AppLayout>
-            <Head title={`${profileUser.username} — Civic Forum`} />
+            <Head title={`${profileUser.username} — Civic Forum`}>
+                <meta head-key="description" name="description" content={description} />
+                <meta head-key="og:title" property="og:title" content={`${profileUser.username} — Civic Forum`} />
+                <meta head-key="og:description" property="og:description" content={description} />
+                <meta head-key="og:url" property="og:url" content={pageUrl} />
+                <link rel="canonical" href={pageUrl} />
+            </Head>
 
             <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
                 {/* Profile header */}

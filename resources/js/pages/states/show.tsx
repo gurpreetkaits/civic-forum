@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import FilterSidebar from '@/components/filter-sidebar';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, State, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,9 @@ interface Props extends PageProps {
 
 export default function StateShow({ state, posts, filters }: Props) {
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
+    const pageUrl = `${ziggy.url}/states/${state.code}`;
+    const description = t('location.civicIssuesIn', { name: state.name, code: state.code });
 
     return (
         <AppLayout
@@ -29,7 +32,13 @@ export default function StateShow({ state, posts, filters }: Props) {
                 </div>
             }
         >
-            <Head title={`${state.name} Civic Issues — Civic Forum`} />
+            <Head title={`${state.name} Civic Issues — Civic Forum`}>
+                <meta head-key="description" name="description" content={description} />
+                <meta head-key="og:title" property="og:title" content={`${state.name} Civic Issues — Civic Forum`} />
+                <meta head-key="og:description" property="og:description" content={description} />
+                <meta head-key="og:url" property="og:url" content={pageUrl} />
+                <link rel="canonical" href={pageUrl} />
+            </Head>
 
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-6 lg:flex-row">

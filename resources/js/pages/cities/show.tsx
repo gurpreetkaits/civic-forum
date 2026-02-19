@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, State, City, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +12,9 @@ interface Props extends PageProps {
 
 export default function CityShow({ state, city, posts }: Props) {
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
+    const pageUrl = `${ziggy.url}/states/${state.code}/${city.id}`;
+    const description = t('location.civicIssuesCity', { city: city.name, state: state.name });
 
     return (
         <AppLayout
@@ -30,7 +33,13 @@ export default function CityShow({ state, city, posts }: Props) {
                 </div>
             }
         >
-            <Head title={`${city.name}, ${state.name} — Civic Forum`} />
+            <Head title={`${city.name}, ${state.name} — Civic Forum`}>
+                <meta head-key="description" name="description" content={description} />
+                <meta head-key="og:title" property="og:title" content={`${city.name}, ${state.name} — Civic Forum`} />
+                <meta head-key="og:description" property="og:description" content={description} />
+                <meta head-key="og:url" property="og:url" content={pageUrl} />
+                <link rel="canonical" href={pageUrl} />
+            </Head>
 
             <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
                 {posts.data.length === 0 ? (

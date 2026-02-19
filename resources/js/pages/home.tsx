@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import FilterSidebar from '@/components/filter-sidebar';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,7 @@ interface Props extends PageProps {
 
 export default function Home({ posts, filters }: Props) {
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
 
     return (
         <AppLayout>
@@ -23,6 +24,8 @@ export default function Home({ posts, filters }: Props) {
                 <meta head-key="description" name="description" content={t('home.metaDescription')} />
                 <meta head-key="og:title" property="og:title" content={t('home.title')} />
                 <meta head-key="og:description" property="og:description" content={t('home.metaOgDescription')} />
+                <meta head-key="og:url" property="og:url" content={ziggy.url} />
+                <link rel="canonical" href={ziggy.url} />
             </Head>
 
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

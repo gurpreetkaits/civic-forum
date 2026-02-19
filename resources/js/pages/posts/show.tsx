@@ -17,18 +17,31 @@ interface Props extends PageProps {
 }
 
 export default function PostShow({ post, comments }: Props) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, ziggy } = usePage<PageProps>().props;
     const isOwner = auth.user?.id === post.user_id;
     const { t } = useTranslation();
+
+    const baseUrl = ziggy.url;
+    const postUrl = `${baseUrl}/posts/${post.slug}`;
+    const description = post.body.substring(0, 160);
+    const ogImage = post.images?.[0]
+        ? `${baseUrl}/storage/${post.images[0].image_path}`
+        : undefined;
 
     return (
         <AppLayout>
             <Head title={`${post.title} — Civic Forum`}>
-                <meta head-key="description" name="description" content={post.body.substring(0, 160)} />
+                <meta head-key="description" name="description" content={description} />
                 <meta head-key="og:title" property="og:title" content={post.title} />
-                <meta head-key="og:description" property="og:description" content={post.body.substring(0, 160)} />
+                <meta head-key="og:description" property="og:description" content={description} />
                 <meta head-key="og:type" property="og:type" content="article" />
-                <link rel="canonical" href={`/posts/${post.slug}`} />
+                <meta head-key="og:url" property="og:url" content={postUrl} />
+                {ogImage && <meta head-key="og:image" property="og:image" content={ogImage} />}
+                <meta head-key="twitter:card" name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+                <meta head-key="twitter:title" name="twitter:title" content={post.title} />
+                <meta head-key="twitter:description" name="twitter:description" content={description} />
+                {ogImage && <meta head-key="twitter:image" name="twitter:image" content={ogImage} />}
+                <link rel="canonical" href={postUrl} />
             </Head>
 
             <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">

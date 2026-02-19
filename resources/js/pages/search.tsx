@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, PageProps } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ interface Props extends PageProps {
 export default function Search({ posts, query }: Props) {
     const [searchTerm, setSearchTerm] = useState(query || '');
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
+    const pageUrl = query ? `${ziggy.url}/search?q=${encodeURIComponent(query)}` : `${ziggy.url}/search`;
 
     function handleSearch(e: FormEvent) {
         e.preventDefault();
@@ -25,7 +27,11 @@ export default function Search({ posts, query }: Props) {
 
     return (
         <AppLayout>
-            <Head title={query ? t('search.titleWithQuery', { query }) : t('search.titleDefault')} />
+            <Head title={query ? t('search.titleWithQuery', { query }) : t('search.titleDefault')}>
+                <meta head-key="og:title" property="og:title" content={query ? t('search.titleWithQuery', { query }) : t('search.titleDefault')} />
+                <meta head-key="og:url" property="og:url" content={pageUrl} />
+                <link rel="canonical" href={pageUrl} />
+            </Head>
 
             <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
                 <h1 className="mb-6 text-2xl font-bold text-foreground">{t('search.title')}</h1>
