@@ -15,46 +15,71 @@ use App\Http\Controllers\VoteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Locale switch
-Route::post('/locale', function (Request $request) {
-    $request->validate(['locale' => 'required|in:en,hi']);
-    return back()->withCookie(cookie()->forever('locale', $request->locale));
-})->name('locale.update');
+// Locale switch - rate limited to prevent abuse
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/locale', function (Request $request) {
+        $request->validate(['locale' => 'required|in:en,hi']);
+        return back()->withCookie(cookie()->forever('locale', $request->locale));
+    })->name('locale.update');
+});
 
-// Public routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/states/{state:code}', [StateController::class, 'show'])->name('states.show');
-Route::get('/states/{state:code}/{city}', [CityController::class, 'show'])->name('cities.show');
-Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
-Route::get('/search', [SearchController::class, 'index'])->name('search');
-Route::get('/users/{user:username}', [UserProfileController::class, 'show'])->name('users.show');
-Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+// Public routes - rate limited
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/states/{state:code}', [StateController::class, 'show'])->name('states.show');
+    Route::get('/states/{state:code}/{city}', [CityController::class, 'show'])->name('cities.show');
+    Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
+    Route::get('/users/{user:username}', [UserProfileController::class, 'show'])->name('users.show');
+    Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+});
 
 // Authenticated routes (must come before /posts/{slug} wildcard)
 Route::middleware('auth')->group(function () {
-    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::get('/posts/{slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
-    Route::put('/posts/{slug}', [PostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{slug}', [PostController::class, 'destroy'])->name('posts.destroy');
+    // Post creation - stricter limit (5 per minute)
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+        Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    });
 
-    Route::post('/votes', [VoteController::class, 'store'])->name('votes.store');
+    // Post editing/deleting (10 per minute)
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::get('/posts/{slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
+        Route::put('/posts/{slug}', [PostController::class, 'update'])->name('posts.update');
+        Route::delete('/posts/{slug}', [PostController::class, 'destroy'])->name('posts.destroy');
+    });
 
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    // Votes - more lenient (60 per minute)
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::post('/votes', [VoteController::class, 'store'])->name('votes.store');
+    });
 
-    Route::post('/uploads/images', [ImageUploadController::class, 'store'])->name('uploads.images');
+    // Comments (10 per minute)
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+        Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    });
 
-    Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Image uploads (20 per minute)
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::post('/uploads/images', [ImageUploadController::class, 'store'])->name('uploads.images');
+    });
+
+    // Profile settings (5 per minute)
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
 // Public post show (wildcard - must be after /posts/create)
 Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show');
 
-// API routes
-Route::get('/api/states/{state}/cities', [App\Http\Controllers\Api\CityController::class, 'index']);
+// API routes - rate limited
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('/api/states/{state}/cities', [App\Http\Controllers\Api\CityController::class, 'index']);
+});
 
 require __DIR__.'/auth.php';
