@@ -8,6 +8,8 @@ import VoteButtons from '@/components/vote-buttons';
 import UserAvatar from '@/components/user-avatar';
 import CommentForm from '@/components/comment-form';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface CommentItemProps {
     comment: Comment;
@@ -56,9 +58,11 @@ export default function CommentItem({
                     </div>
 
                     {/* Comment body */}
-                    <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">
-                        {comment.body}
-                    </p>
+                    <div className="prose prose-sm mt-1 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-p:my-1">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {comment.body}
+                        </ReactMarkdown>
+                    </div>
 
                     {/* Comment actions */}
                     <div className="mt-1 flex items-center gap-2">

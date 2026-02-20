@@ -27,8 +27,14 @@ export default function PostCard({ post, showCategory = true }: PostCardProps) {
         });
     };
 
+    const plainBody = post.body
+        .replace(/#{1,6}\s/g, '')
+        .replace(/[*_~`>]/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/\n/g, ' ')
+        .trim();
     const bodyExcerpt =
-        post.body.length > 150 ? post.body.slice(0, 150) + '...' : post.body;
+        plainBody.length > 150 ? plainBody.slice(0, 150) + '...' : plainBody;
 
     const locationParts: string[] = [];
     if (post.city?.name) {

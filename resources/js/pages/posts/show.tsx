@@ -12,6 +12,8 @@ import { timeAgo } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { LinkIcon, Check } from 'lucide-react';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Props extends PageProps {
     post: Post;
@@ -85,8 +87,10 @@ export default function PostShow({ post, comments }: Props) {
                             <PostMeta post={post} />
 
                             {/* Post body */}
-                            <div className="prose mt-4 max-w-none text-foreground whitespace-pre-wrap">
-                                {post.body}
+                            <div className="prose prose-sm sm:prose mt-4 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {post.body}
+                                </ReactMarkdown>
                             </div>
 
                             {/* Images */}
