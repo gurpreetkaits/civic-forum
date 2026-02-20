@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,7 +25,9 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
 
-            $table->fullText(['title', 'body']);
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->fullText(['title', 'body']);
+            }
             $table->index('vote_count');
             $table->index('published_at');
         });
