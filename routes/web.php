@@ -5,6 +5,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
@@ -75,6 +76,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
+
+// OG image for social media cards (must be before wildcard)
+Route::get('/posts/{slug}/og-image.png', [OgImageController::class, 'show'])->name('posts.og-image');
 
 // Public post show (wildcard - must be after /posts/create)
 Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show');

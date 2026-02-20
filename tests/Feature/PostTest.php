@@ -69,6 +69,25 @@ class PostTest extends TestCase
         $response->assertStatus(404);
     }
 
+    // ── OG Image ─────────────────────────────────────────────
+
+    public function test_og_image_returns_png(): void
+    {
+        $post = Post::factory()->create();
+
+        $response = $this->get("/posts/{$post->slug}/og-image.png");
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'image/png');
+    }
+
+    public function test_og_image_returns_404_for_missing_post(): void
+    {
+        $response = $this->get('/posts/nonexistent-slug/og-image.png');
+
+        $response->assertStatus(404);
+    }
+
     // ── Create / Store ──────────────────────────────────────
 
     public function test_guest_cannot_access_create_post_page(): void
