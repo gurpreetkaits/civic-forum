@@ -20,6 +20,48 @@ export function stripMarkdown(md: string): string {
         .trim();
 }
 
+export function slugify(text: string): string {
+    return text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+}
+
+export interface TocHeading {
+    level: number;
+    text: string;
+    id: string;
+}
+
+/**
+ * Extract headings from markdown source for a table of contents.
+ */
+export function extractHeadings(markdown: string): TocHeading[] {
+    const headings: TocHeading[] = [];
+    const lines = markdown.split('\n');
+
+    for (const line of lines) {
+        const match = line.match(/^(#{1,4})\s+(.+)$/);
+        if (match) {
+            const text = match[2]
+                .replace(/\*\*(.+?)\*\*/g, '$1')
+                .replace(/\*(.+?)\*/g, '$1')
+                .replace(/`(.+?)`/g, '$1')
+                .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
+                .trim();
+            headings.push({
+                level: match[1].length,
+                text,
+                id: slugify(text),
+            });
+        }
+    }
+
+    return headings;
+}
+
 export function timeAgo(date: string): string {
     const now = new Date();
     const past = new Date(date);

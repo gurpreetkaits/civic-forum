@@ -38,7 +38,8 @@
     "edit": "संपादित करें",
     "delete": "हटाएं",
     "deleteConfirm": "क्या आप इस पोस्ट को हटाना चाहते हैं?",
-    "commentsHeading": "टिप्पणियां ({{count}})"
+    "commentsHeading": "टिप्पणियां ({{count}})",
+    "contents": "विषय-सूची"
   },
   "postForm": {
     "createTitle": "पोस्ट बनाएं \u2014 नागरिक मंच",

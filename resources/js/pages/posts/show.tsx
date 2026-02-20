@@ -4,16 +4,17 @@ import CommentSection from '@/components/comment-section';
 import ImageGallery from '@/components/image-gallery';
 import PostMeta from '@/components/post-meta';
 import UserAvatar from '@/components/user-avatar';
+import TableOfContents from '@/components/table-of-contents';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Post, GroupedComments, CommentCounts, PageProps } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { timeAgo, stripMarkdown } from '@/lib/utils';
+import { timeAgo, stripMarkdown, extractHeadings, slugify } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { LinkIcon, Check, MessageSquare, HelpCircle } from 'lucide-react';
-import { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { useMemo, useState } from 'react';
+import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface Props extends PageProps {
@@ -43,6 +44,29 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
         ? `${locationLabel} — ${description}`
         : description;
 
+    const headings = useMemo(() => extractHeadings(post.body), [post.body]);
+
+    // Custom renderers that add id attributes to headings for anchor links
+    const markdownComponents = useMemo<Components>(() => {
+        const makeHeading = (Tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') => {
+            const Component = ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
+                const text = typeof children === 'string' ? children : String(children ?? '');
+                const id = slugify(text);
+                return <Tag id={id} {...props}>{children}</Tag>;
+            };
+            Component.displayName = Tag;
+            return Component;
+        };
+        return {
+            h1: makeHeading('h1'),
+            h2: makeHeading('h2'),
+            h3: makeHeading('h3'),
+            h4: makeHeading('h4'),
+            h5: makeHeading('h5'),
+            h6: makeHeading('h6'),
+        };
+    }, []);
+
     return (
         <AppLayout>
             <Head title={`${post.title} — Civic Forum`}>
@@ -64,7 +88,13 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
                 <link rel="canonical" href={postUrl} />
             </Head>
 
-            <div className="mx-auto max-w-4xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
+            <div className="mx-auto max-w-6xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
+                <div className="flex gap-6">
+                {/* Table of Contents — left sidebar, desktop only */}
+                {headings.length > 0 && <TableOfContents headings={headings} />}
+
+                {/* Main content column */}
+                <div className="min-w-0 flex-1">
                 <div className="overflow-hidden rounded-lg border bg-card">
                     <div className="flex gap-2 p-3 sm:gap-4 sm:p-6">
                         {/* Vote column */}
@@ -102,8 +132,8 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
                             <PostMeta post={post} />
 
                             {/* Post body */}
-                            <div className="prose prose-sm sm:prose mt-4 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            <div className="prose prose-sm sm:prose mt-4 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-headings:scroll-mt-20">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                                     {post.body}
                                 </ReactMarkdown>
                             </div>
@@ -208,6 +238,8 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
                             <CommentSection comments={comments.question} postId={post.id} commentType="question" />
                         </TabsContent>
                     </Tabs>
+                </div>
+                </div>
                 </div>
             </div>
         </AppLayout>
