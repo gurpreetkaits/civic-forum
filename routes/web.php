@@ -12,6 +12,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\VoteController;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,14 +37,14 @@ Route::middleware('throttle:60,1')->group(function () {
 
 // Authenticated routes (must come before /posts/{slug} wildcard)
 Route::middleware('auth')->group(function () {
-    // Post creation - one post per day limit
-    Route::middleware('throttle:create-post')->group(function () {
+    // Post creation - admin only, one post per day limit
+    Route::middleware([EnsureUserIsAdmin::class, 'throttle:create-post'])->group(function () {
         Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     });
 
-    // Post editing/deleting (10 per minute)
-    Route::middleware('throttle:10,1')->group(function () {
+    // Post editing/deleting - admin only (10 per minute)
+    Route::middleware([EnsureUserIsAdmin::class, 'throttle:10,1'])->group(function () {
         Route::get('/posts/{slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
         Route::put('/posts/{slug}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{slug}', [PostController::class, 'destroy'])->name('posts.destroy');

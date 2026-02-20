@@ -11,6 +11,7 @@ export interface User {
     state_id?: number;
     city_id?: number;
     reputation: number;
+    is_admin: boolean;
     state?: State;
     city?: City;
 }

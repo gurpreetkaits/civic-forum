@@ -67,12 +67,14 @@ export default function AppLayout({
 
                             {user ? (
                                 <>
-                                    <Link href="/posts/create">
-                                        <Button size="sm">
-                                            <Plus className="mr-1 h-4 w-4" />
-                                            {t('nav.newPost')}
-                                        </Button>
-                                    </Link>
+                                    {user.is_admin && (
+                                        <Link href="/posts/create">
+                                            <Button size="sm">
+                                                <Plus className="mr-1 h-4 w-4" />
+                                                {t('nav.newPost')}
+                                            </Button>
+                                        </Link>
+                                    )}
 
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
