@@ -27,22 +27,28 @@ class SecurityHeaders
         // Referrer Policy
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // Content Security Policy
-        $response->headers->set(
-            'Content-Security-Policy',
-            "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://unpkg.com; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-            "img-src 'self' data: https: blob:; " .
-            "font-src 'self' data: https://fonts.gstatic.com; " .
-            "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; " .
-            "frame-ancestors 'self' https://*.google.com;"
-        );
+        // Content Security Policy (production only — Vite dev server conflicts with CSP)
+        if (!app()->environment('local')) {
+            $response->headers->set(
+                'Content-Security-Policy',
+                implode('; ', [
+                    "default-src 'self'",
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://sdk.onfido.com",
+                    "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://sdk.onfido.com",
+                    "img-src 'self' data: https: blob:",
+                    "font-src 'self' data: https://fonts.bunny.net",
+                    "connect-src 'self' https://fonts.bunny.net https://sdk.onfido.com https://*.onfido.com",
+                    "media-src 'self' blob:",
+                    "frame-src 'self' https://sdk.onfido.com",
+                    "frame-ancestors 'self' https://*.google.com",
+                ])
+            );
+        }
 
-        // Permissions Policy (disable features not needed)
+        // Permissions Policy (camera & microphone needed for Onfido face verification)
         $response->headers->set(
             'Permissions-Policy',
-            'camera=(), microphone=(), geolocation=()'
+            'camera=(self), microphone=(self), geolocation=()'
         );
 
         // Strict Transport Security (only in production)

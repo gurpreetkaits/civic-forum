@@ -12,6 +12,8 @@ export interface User {
     city_id?: number;
     reputation: number;
     is_admin: boolean;
+    is_verified: boolean;
+    verified_at?: string;
     state?: State;
     city?: City;
 }

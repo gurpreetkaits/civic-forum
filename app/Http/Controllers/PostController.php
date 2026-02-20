@@ -60,8 +60,26 @@ class PostController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $user = $request->user();
+        $limit = $user?->is_verified ? 5 : 1;
+        $key = $user ? 'user-' . $user->id : 'ip-' . $request->ip();
+
+        // Check if user has hit their rate limit
+        $rateLimiter = app(\Illuminate\Cache\RateLimiter::class);
+        $maxAttempts = $limit;
+
+        if ($rateLimiter->tooManyAttempts('create-post:' . $key, $maxAttempts)) {
+            $availableAt = $rateLimiter->availableIn('create-post:' . $key);
+
+            return Inertia::render('posts/create-limit-reached', [
+                'limit' => $limit,
+                'next_post_allowed' => now()->addSeconds($availableAt)->toISOString(),
+                'is_verified' => $user?->is_verified ?? false,
+            ]);
+        }
+
         return Inertia::render('posts/create', [
             'categories' => Category::orderBy('sort_order')->get(),
             'states' => State::orderBy('name')->get(),

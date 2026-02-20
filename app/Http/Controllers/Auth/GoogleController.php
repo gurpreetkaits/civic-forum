@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -15,16 +16,19 @@ class GoogleController extends Controller
 {
     public function redirect(Request $request): RedirectResponse
     {
+        $response = Socialite::driver('google')->redirect();
+
+        // Set a cookie to track popup mode (will persist through redirects)
         if ($request->has('popup')) {
-            session(['google_auth_popup' => true]);
+            $response->withCookie(cookie('google_auth_popup', '1', 10)); // 10 minutes
         }
 
-        return Socialite::driver('google')->redirect();
+        return $response;
     }
 
-    public function callback(Request $request): RedirectResponse|View
+    public function callback(Request $request): RedirectResponse|Response|View
     {
-        $isPopup = session()->pull('google_auth_popup', false);
+        $isPopup = $request->cookie('google_auth_popup') === '1';
 
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -58,10 +62,13 @@ class GoogleController extends Controller
         Auth::login($user, remember: true);
 
         if ($isPopup) {
-            return view('auth.google-callback');
+            // Clear the popup cookie and return the callback view
+            return response()
+                ->view('auth.google-callback')
+                ->withCookie(cookie()->forget('google_auth_popup'));
         }
 
-        return redirect('/');
+        return redirect('/')->withCookie(cookie()->forget('google_auth_popup'));
     }
 
     private function generateUniqueUsername(string $name, string $email): string

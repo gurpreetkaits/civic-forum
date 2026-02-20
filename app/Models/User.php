@@ -16,6 +16,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'username', 'email', 'password', 'google_id',
         'bio', 'avatar_path', 'state_id', 'city_id', 'reputation', 'is_admin',
+        'is_verified', 'onfido_applicant_id', 'verified_at',
     ];
 
     protected $hidden = [
@@ -30,7 +31,27 @@ class User extends Authenticatable
             'password' => 'hashed',
             'reputation' => 'integer',
             'is_admin' => 'boolean',
+            'is_verified' => 'boolean',
+            'verified_at' => 'datetime',
         ];
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->is_verified === true;
+    }
+
+    public function markAsVerified(): void
+    {
+        $this->update([
+            'is_verified' => true,
+            'verified_at' => now(),
+        ]);
+    }
+
+    public function setOnfidoApplicantId(string $applicantId): void
+    {
+        $this->update(['onfido_applicant_id' => $applicantId]);
     }
 
     public function state(): BelongsTo

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3792c384a4843a326dcbf2070c357b06",
+    "content-hash": "12b57193ea7a3a9b3699ee1844a3b6d6",
     "packages": [
         {
             "name": "brick/math",
@@ -2871,6 +2871,64 @@
                 }
             ],
             "time": "2026-02-16T23:10:27+00:00"
+        },
+        {
+            "name": "onfido/onfido-php",
+            "version": "10.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/onfido/onfido-php.git",
+                "reference": "90a4d3df910f3d2a7b561edb887ca5030f9bf2b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/onfido/onfido-php/zipball/90a4d3df910f3d2a7b561edb887ca5030f9bf2b4",
+                "reference": "90a4d3df910f3d2a7b561edb887ca5030f9bf2b4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "guzzlehttp/psr7": "^1.7 || ^2.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.5",
+                "phpunit/phpunit": "^8.0 || ^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Onfido\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "OpenAPI",
+                    "homepage": "https://openapi-generator.tech"
+                }
+            ],
+            "description": "The Onfido Public API (v3.6)",
+            "homepage": "https://documentation.onfido.com",
+            "keywords": [
+                "api",
+                "openapi",
+                "openapi-generator",
+                "openapitools",
+                "php",
+                "rest",
+                "sdk"
+            ],
+            "support": {
+                "source": "https://github.com/onfido/onfido-php/tree/v10.0.0"
+            },
+            "time": "2026-02-19T10:13:36+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

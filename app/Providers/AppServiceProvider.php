@@ -36,21 +36,34 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting(): void
     {
-        // One post per day limit
+        // Post creation limit: verified users get 5/day, others get 1/day
         RateLimiter::for('create-post', function (Request $request) {
             $user = $request->user();
             $key = $user ? 'user-' . $user->id : 'ip-' . $request->ip();
+            $limit = $user?->is_verified ? 5 : 1;
 
-            return Limit::perDay(1)->by($key)->response(function (Request $request, array $headers) {
+            return Limit::perDay($limit)->by($key)->response(function (Request $request, array $headers) {
+                // For Inertia requests, redirect back with error
+                if ($request->header('X-Inertia')) {
+                    return back()->withErrors([
+                        'rate_limit' => 'You have reached your daily post limit of ' . $limit . ' post' . ($limit > 1 ? 's' : '') . '. Please try again tomorrow.',
+                    ]);
+                }
+
+                // For API requests, return JSON
                 return response()->json([
-                    'message' => 'You have already created a post today. Please try again tomorrow.',
+                    'message' => 'You have reached your daily post limit. Please try again tomorrow.',
                     'next_post_allowed' => now()->addDay()->toISOString(),
                 ], 429, $headers);
             });
         });
 
-        // Custom rate limit messages for different actions
+        // Comment rate limit: verified users are unlimited, others get 10/min
         RateLimiter::for('create-comment', function (Request $request) {
+            if ($request->user()?->is_verified) {
+                return Limit::none();
+            }
+
             return Limit::perMinute(10)->by('user-' . $request->user()?->id ?: $request->ip())
                 ->response(function (Request $request, array $headers) {
                     return response()->json([

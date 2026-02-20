@@ -41,4 +41,11 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'onfido' => [
+        'api_key' => env('ONFIDO_API_KEY'),
+        'sdk_key' => env('ONFIDO_SDK_KEY'),
+        'region' => env('ONFIDO_REGION', 'US'),
+        'webhook_token' => env('ONFIDO_WEBHOOK_TOKEN'),
+    ],
+
 ];

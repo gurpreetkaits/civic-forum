@@ -11,6 +11,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\VoteController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Http\Request;
@@ -37,10 +38,10 @@ Route::middleware('throttle:60,1')->group(function () {
 
 // Authenticated routes (must come before /posts/{slug} wildcard)
 Route::middleware('auth')->group(function () {
-    // Post creation - admin only, one post per day limit
-    Route::middleware([EnsureUserIsAdmin::class, 'throttle:create-post'])->group(function () {
+    // Post creation - admin only
+    Route::middleware(EnsureUserIsAdmin::class)->group(function () {
         Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
-        Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+        Route::post('/posts', [PostController::class, 'store'])->name('posts.store')->middleware('throttle:create-post');
     });
 
     // Post editing/deleting - admin only (10 per minute)
@@ -81,6 +82,24 @@ Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show')
 // API routes - rate limited
 Route::middleware('throttle:30,1')->group(function () {
     Route::get('/api/states/{state}/cities', [App\Http\Controllers\Api\CityController::class, 'index']);
+});
+
+// Authenticated verification routes
+Route::middleware('auth')->group(function () {
+    Route::get('/verification/submit', function () {
+        return inertia('verification/submit');
+    })->name('verification.submit');
+
+    Route::get('/api/verification/status', [VerificationController::class, 'status']);
+    Route::post('/api/verification/submit', [VerificationController::class, 'submit']);
+});
+
+// Admin verification API routes (no frontend page - managed via API only)
+Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function () {
+    Route::get('/api/verification/requests', [VerificationController::class, 'index']);
+    Route::get('/api/verification/requests/{verificationRequest}', [VerificationController::class, 'show']);
+    Route::post('/api/verification/requests/{verificationRequest}/approve', [VerificationController::class, 'approve']);
+    Route::post('/api/verification/requests/{verificationRequest}/reject', [VerificationController::class, 'reject']);
 });
 
 require __DIR__.'/auth.php';
