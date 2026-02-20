@@ -9,7 +9,7 @@ import { Post, GroupedComments, CommentCounts, PageProps } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { timeAgo } from '@/lib/utils';
+import { timeAgo, stripMarkdown } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { LinkIcon, Check, MessageSquare, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -30,24 +30,37 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
 
     const baseUrl = ziggy.url;
     const postUrl = `${baseUrl}/posts/${post.slug}`;
-    const description = post.body.substring(0, 160);
+    const plainBody = stripMarkdown(post.body);
+    const description = plainBody.length > 200 ? plainBody.substring(0, 197) + '...' : plainBody;
     const ogImage = post.images?.[0]
         ? `${baseUrl}/storage/${post.images[0].image_path}`
         : undefined;
+    const ogTitle = post.category
+        ? `${post.title} — ${post.category.translated_name}`
+        : post.title;
+    const locationLabel = [post.city?.name, post.state?.name].filter(Boolean).join(', ');
+    const ogDescription = locationLabel
+        ? `${locationLabel} — ${description}`
+        : description;
 
     return (
         <AppLayout>
             <Head title={`${post.title} — Civic Forum`}>
                 <meta head-key="description" name="description" content={description} />
-                <meta head-key="og:title" property="og:title" content={post.title} />
-                <meta head-key="og:description" property="og:description" content={description} />
+                <meta head-key="og:site_name" property="og:site_name" content="Civic Forum" />
+                <meta head-key="og:title" property="og:title" content={ogTitle} />
+                <meta head-key="og:description" property="og:description" content={ogDescription} />
                 <meta head-key="og:type" property="og:type" content="article" />
                 <meta head-key="og:url" property="og:url" content={postUrl} />
                 {ogImage && <meta head-key="og:image" property="og:image" content={ogImage} />}
+                {ogImage && <meta head-key="og:image:alt" property="og:image:alt" content={post.title} />}
                 <meta head-key="twitter:card" name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-                <meta head-key="twitter:title" name="twitter:title" content={post.title} />
-                <meta head-key="twitter:description" name="twitter:description" content={description} />
+                <meta head-key="twitter:title" name="twitter:title" content={ogTitle} />
+                <meta head-key="twitter:description" name="twitter:description" content={ogDescription} />
                 {ogImage && <meta head-key="twitter:image" name="twitter:image" content={ogImage} />}
+                <meta head-key="article:published_time" property="article:published_time" content={post.published_at ?? post.created_at} />
+                <meta head-key="article:author" property="article:author" content={post.user?.name ?? ''} />
+                {post.category && <meta head-key="article:section" property="article:section" content={post.category.translated_name} />}
                 <link rel="canonical" href={postUrl} />
             </Head>
 

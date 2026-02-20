@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
+/**
+ * Strip markdown syntax to produce plain text for OG descriptions.
+ */
+export function stripMarkdown(md: string): string {
+    return md
+        .replace(/!\[.*?\]\(.*?\)/g, '')       // images
+        .replace(/\[([^\]]*)\]\(.*?\)/g, '$1') // links → text
+        .replace(/#{1,6}\s+/g, '')             // headings
+        .replace(/[*_~`>{}\[\]]/g, '')         // inline formatting chars
+        .replace(/\n{2,}/g, ' ')               // double newlines → space
+        .replace(/\n/g, ' ')                   // single newlines → space
+        .replace(/\s{2,}/g, ' ')               // collapse whitespace
+        .trim();
+}
+
 export function timeAgo(date: string): string {
     const now = new Date();
     const past = new Date(date);
