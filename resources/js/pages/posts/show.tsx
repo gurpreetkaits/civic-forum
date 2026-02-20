@@ -22,7 +22,7 @@ interface Props extends PageProps {
 
 export default function PostShow({ post, comments }: Props) {
     const { auth, ziggy } = usePage<PageProps>().props;
-    const isOwner = auth.user?.id === post.user_id;
+    const canEdit = auth.user?.id === post.user_id || auth.user?.is_admin;
     const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
 
@@ -49,9 +49,9 @@ export default function PostShow({ post, comments }: Props) {
                 <link rel="canonical" href={postUrl} />
             </Head>
 
-            <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-4xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
                 <div className="overflow-hidden rounded-lg border bg-card">
-                    <div className="flex gap-4 p-6">
+                    <div className="flex gap-2 p-3 sm:gap-4 sm:p-6">
                         {/* Vote column */}
                         <div className="shrink-0">
                             <VoteButtons
@@ -64,7 +64,7 @@ export default function PostShow({ post, comments }: Props) {
 
                         {/* Content */}
                         <div className="min-w-0 flex-1">
-                            <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                            <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
                                     {post.user && <UserAvatar user={post.user} size="sm" />}
                                     <Link
@@ -80,7 +80,7 @@ export default function PostShow({ post, comments }: Props) {
                                 <span>{t('post.views', { count: post.view_count })}</span>
                             </div>
 
-                            <h1 className="mb-3 text-2xl font-bold text-foreground">
+                            <h1 className="mb-3 text-lg sm:text-2xl font-bold text-foreground">
                                 {post.title}
                             </h1>
 
@@ -136,8 +136,8 @@ export default function PostShow({ post, comments }: Props) {
                                 </button>
                             </div>
 
-                            {/* Owner actions */}
-                            {isOwner && (
+                            {/* Owner/admin actions */}
+                            {canEdit && (
                                 <div className="mt-4 flex gap-2 border-t pt-4">
                                     <Link href={`/posts/${post.slug}/edit`}>
                                         <Button variant="outline" size="sm">

@@ -44,24 +44,24 @@ export default function UserShow({ profileUser, posts, comments }: Props) {
                 <link rel="canonical" href={pageUrl} />
             </Head>
 
-            <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-4xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
                 {/* Profile header */}
                 <div className="rounded-lg border bg-card">
                     {/* Cover area */}
                     <div className="h-24 rounded-t-lg bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5 sm:h-32" />
 
                     {/* Avatar + info */}
-                    <div className="px-6 pb-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                            <div className="flex items-end gap-4">
-                                <div className="-mt-10 rounded-full border-4 border-card bg-card sm:-mt-12">
+                    <div className="px-4 pb-4 sm:px-6 sm:pb-6">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                            <div className="flex items-end gap-3 sm:gap-4">
+                                <div className="-mt-8 rounded-full border-4 border-card bg-card sm:-mt-12">
                                     <UserAvatar user={profileUser} size="lg" />
                                 </div>
-                                <div className="pb-1">
-                                    <h1 className="text-xl font-bold text-foreground">
+                                <div className="min-w-0 pb-1">
+                                    <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">
                                         {profileUser.name}
                                     </h1>
-                                    <p className="text-sm text-muted-foreground">@{profileUser.username}</p>
+                                    <p className="text-xs sm:text-sm text-muted-foreground">@{profileUser.username}</p>
                                 </div>
                             </div>
 
@@ -79,7 +79,7 @@ export default function UserShow({ profileUser, posts, comments }: Props) {
                             <p className="mt-4 text-sm text-foreground">{profileUser.bio}</p>
                         )}
 
-                        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                        <div className="mt-3 sm:mt-4 flex flex-wrap gap-x-4 gap-y-1.5 sm:gap-x-5 sm:gap-y-2 text-xs sm:text-sm text-muted-foreground">
                             <span className="flex items-center gap-1.5">
                                 <Star className="h-4 w-4" />
                                 {t('user.reputation', { count: profileUser.reputation })}
@@ -105,7 +105,7 @@ export default function UserShow({ profileUser, posts, comments }: Props) {
                         </div>
 
                         {/* Stats row */}
-                        <div className="mt-4 flex gap-6">
+                        <div className="mt-3 sm:mt-4 flex gap-4 sm:gap-6">
                             <div className="text-center">
                                 <p className="text-lg font-semibold text-foreground">{posts.total}</p>
                                 <p className="text-xs text-muted-foreground">{t('user.postsLabel')}</p>

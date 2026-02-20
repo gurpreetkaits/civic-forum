@@ -1,7 +1,6 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import FilterSidebar from '@/components/filter-sidebar';
-import QuotesTicker from '@/components/quotes-ticker';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
@@ -32,22 +31,20 @@ export default function Home({ posts, filters }: Props) {
                 <link rel="canonical" href={ziggy.url} />
             </Head>
 
-            <QuotesTicker />
-
             {/* Purpose statement */}
-            <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-                <div className="rounded-lg border bg-card p-5 text-center">
-                    <h2 className="text-base font-semibold text-foreground">
+            <div className="mx-auto max-w-7xl px-2 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+                <div className="rounded-lg border bg-card p-3 sm:p-5 text-center">
+                    <h2 className="text-sm sm:text-base font-semibold text-foreground">
                         {t('purpose.heading')}
                     </h2>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
                         {t('purpose.description')}
                     </p>
                 </div>
             </div>
 
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="mx-auto max-w-7xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
+                <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row">
                     {/* Sidebar */}
                     <aside className="w-full shrink-0 lg:w-64">
                         <FilterSidebar currentFilters={filters} baseUrl="/" />

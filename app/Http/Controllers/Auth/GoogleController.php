@@ -46,16 +46,33 @@ class GoogleController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
 
             if ($user) {
-                $user->update(['google_id' => $googleUser->getId()]);
+                $user->update([
+                    'google_id' => $googleUser->getId(),
+                    'avatar_path' => $user->avatar_path ?: $googleUser->getAvatar(),
+                    'name' => $user->name ?: $googleUser->getName(),
+                ]);
             } else {
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'username' => $this->generateUniqueUsername($googleUser->getName(), $googleUser->getEmail()),
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
+                    'avatar_path' => $googleUser->getAvatar(),
                     'email_verified_at' => now(),
                     'password' => null,
                 ]);
+            }
+        } else {
+            // Update avatar and name from Google if not set locally
+            $updates = [];
+            if (! $user->avatar_path || str_starts_with($user->avatar_path, 'http')) {
+                $updates['avatar_path'] = $googleUser->getAvatar();
+            }
+            if (! $user->name || $user->name === $user->username) {
+                $updates['name'] = $googleUser->getName();
+            }
+            if ($updates) {
+                $user->update($updates);
             }
         }
 

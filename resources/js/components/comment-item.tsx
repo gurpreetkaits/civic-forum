@@ -28,8 +28,8 @@ export default function CommentItem({
     const { t } = useTranslation();
 
     return (
-        <div className={depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}>
-            <div className="flex gap-3 py-2">
+        <div className={depth > 0 ? 'ml-3 sm:ml-6 border-l-2 border-muted pl-2 sm:pl-4' : ''}>
+            <div className="flex gap-2 sm:gap-3 py-2">
                 {/* Vote buttons */}
                 <VoteButtons
                     votableType="comment"

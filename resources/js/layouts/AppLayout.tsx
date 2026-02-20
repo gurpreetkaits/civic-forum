@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { PageProps } from '@/types';
 import { Github, Menu, Plus } from 'lucide-react';
 import LanguageToggle from '@/components/language-toggle';
+import QuotesTicker from '@/components/quotes-ticker';
 
 export default function AppLayout({
     header,
@@ -32,12 +33,12 @@ export default function AppLayout({
             <nav className="sticky top-0 z-50 border-b bg-background">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-14 items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2">
-                                <Link href="/" className="text-lg font-semibold tracking-tight">
+                        <div className="flex items-center gap-3 sm:gap-6">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Link href="/" className="text-base sm:text-lg font-semibold tracking-tight">
                                     {t('nav.civicForum')}
                                 </Link>
-                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                <Badge variant="secondary" className="hidden sm:inline-flex text-[10px] px-1.5 py-0 font-normal">
                                     janrashtra.in
                                 </Badge>
                             </div>
@@ -81,13 +82,16 @@ export default function AppLayout({
                                             <Button variant="ghost" size="sm" className="gap-2">
                                                 <Avatar className="h-6 w-6">
                                                     {user.avatar_path && (
-                                                        <AvatarImage src={`/storage/${user.avatar_path}`} />
+                                                        <AvatarImage
+                                                            src={user.avatar_path.startsWith('http') ? user.avatar_path : `/storage/${user.avatar_path}`}
+                                                            referrerPolicy="no-referrer"
+                                                        />
                                                     )}
                                                     <AvatarFallback className="text-xs">
                                                         {user.name.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <span className="hidden sm:inline">{user.username}</span>
+                                                <span className="hidden sm:inline">{user.name}</span>
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-48">
@@ -153,6 +157,8 @@ export default function AppLayout({
                 </div>
             </nav>
 
+            <QuotesTicker />
+
             {header && (
                 <header className="border-b bg-background">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -163,8 +169,8 @@ export default function AppLayout({
 
             <main>{children}</main>
 
-            <footer className="mt-12 border-t py-8">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <footer className="mt-8 sm:mt-12 border-t py-6 sm:py-8">
+                <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
                     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                         <div className="flex items-center gap-2">
                             <p className="text-sm text-muted-foreground">

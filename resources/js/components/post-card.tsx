@@ -61,8 +61,8 @@ export default function PostCard({ post, showCategory = true }: PostCardProps) {
             </div>
 
             {/* Content column */}
-            <div className="flex flex-1 gap-3 py-3 pr-4">
-                <div className="flex flex-1 flex-col gap-1.5 min-w-0">
+            <div className="flex flex-1 gap-3 py-3 pr-3 sm:pr-4">
+                <div className="flex flex-1 flex-col gap-1 sm:gap-1.5 min-w-0">
                     {/* Meta line */}
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         {showCategory && post.category && (
@@ -104,7 +104,7 @@ export default function PostCard({ post, showCategory = true }: PostCardProps) {
                     {/* Title */}
                     <Link
                         href={`/posts/${post.slug}`}
-                        className="text-base font-semibold leading-tight text-foreground hover:underline"
+                        className="text-sm sm:text-base font-semibold leading-tight text-foreground hover:underline"
                     >
                         {post.title}
                     </Link>
@@ -115,7 +115,7 @@ export default function PostCard({ post, showCategory = true }: PostCardProps) {
                     </p>
 
                     {/* Footer actions */}
-                    <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4 text-xs text-muted-foreground">
                         <Link
                             href={`/posts/${post.slug}`}
                             className="flex items-center gap-1 font-medium hover:text-foreground"

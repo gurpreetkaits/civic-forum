@@ -44,8 +44,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store')->middleware('throttle:create-post');
     });
 
-    // Post editing/deleting - admin only (10 per minute)
-    Route::middleware([EnsureUserIsAdmin::class, 'throttle:10,1'])->group(function () {
+    // Post editing/deleting - owner or admin (authorized via PostPolicy)
+    Route::middleware('throttle:10,1')->group(function () {
         Route::get('/posts/{slug}/edit', [PostController::class, 'edit'])->name('posts.edit');
         Route::put('/posts/{slug}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{slug}', [PostController::class, 'destroy'])->name('posts.destroy');

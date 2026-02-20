@@ -13,6 +13,13 @@ const sizeClasses = {
     lg: 'h-16 w-16 text-xl',
 };
 
+function getAvatarSrc(avatarPath: string): string {
+    if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
+        return avatarPath;
+    }
+    return `/storage/${avatarPath}`;
+}
+
 export default function UserAvatar({ user, size = 'md' }: UserAvatarProps) {
     const fallbackLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
 
@@ -20,8 +27,9 @@ export default function UserAvatar({ user, size = 'md' }: UserAvatarProps) {
         <Avatar className={cn(sizeClasses[size])}>
             {user.avatar_path && (
                 <AvatarImage
-                    src={`/storage/${user.avatar_path}`}
+                    src={getAvatarSrc(user.avatar_path)}
                     alt={user.name}
+                    referrerPolicy="no-referrer"
                 />
             )}
             <AvatarFallback className="bg-muted text-muted-foreground">
