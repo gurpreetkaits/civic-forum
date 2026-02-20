@@ -10,9 +10,9 @@ import { Post, GroupedComments, CommentCounts, PageProps } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { timeAgo, stripMarkdown, extractHeadings, slugify } from '@/lib/utils';
+import { timeAgo, stripMarkdown, extractHeadings, slugify, cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { LinkIcon, Check, MessageSquare, HelpCircle } from 'lucide-react';
+import { LinkIcon, Check, MessageSquare, HelpCircle, ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -28,6 +28,7 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
     const canEdit = auth.user?.id === post.user_id || auth.user?.is_admin;
     const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
+    const [commentsOpen, setCommentsOpen] = useState(true);
 
     const baseUrl = ziggy.url;
     const postUrl = `${baseUrl}/posts/${post.slug}`;
@@ -65,151 +66,22 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
         };
     }, []);
 
-    return (
-        <AppLayout>
-            <Head title={`${post.title} — Civic Forum`}>
-                <meta head-key="description" name="description" content={description} />
-                <meta head-key="og:site_name" property="og:site_name" content="Civic Forum" />
-                <meta head-key="og:title" property="og:title" content={ogTitle} />
-                <meta head-key="og:description" property="og:description" content={ogDescription} />
-                <meta head-key="og:type" property="og:type" content="article" />
-                <meta head-key="og:url" property="og:url" content={postUrl} />
-                <meta head-key="og:image" property="og:image" content={ogImage} />
-                <meta head-key="og:image:width" property="og:image:width" content="1200" />
-                <meta head-key="og:image:height" property="og:image:height" content="630" />
-                <meta head-key="og:image:alt" property="og:image:alt" content={post.title} />
-                <meta head-key="twitter:card" name="twitter:card" content="summary_large_image" />
-                <meta head-key="twitter:title" name="twitter:title" content={ogTitle} />
-                <meta head-key="twitter:description" name="twitter:description" content={ogDescription} />
-                <meta head-key="twitter:image" name="twitter:image" content={ogImage} />
-                <meta head-key="article:published_time" property="article:published_time" content={post.published_at ?? post.created_at} />
-                <meta head-key="article:author" property="article:author" content={post.user?.name ?? ''} />
-                {post.category && <meta head-key="article:section" property="article:section" content={post.category.translated_name} />}
-                <link rel="canonical" href={postUrl} />
-            </Head>
-
-            <div className="mx-auto max-w-6xl px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
-                <div className="flex gap-6">
-                {/* Table of Contents — left sidebar, desktop only */}
-                {headings.length > 0 && <TableOfContents headings={headings} />}
-
-                {/* Main content column */}
-                <div className="min-w-0 flex-1">
-                <div className="overflow-hidden rounded-lg border bg-card">
-                    <div className="flex gap-2 p-3 sm:gap-4 sm:p-6">
-                        {/* Vote column */}
-                        <div className="shrink-0">
-                            <VoteButtons
-                                votableType="post"
-                                votableId={post.id}
-                                voteCount={post.vote_count}
-                                userVote={post.user_vote ?? null}
-                            />
-                        </div>
-
-                        {/* Content */}
-                        <div className="min-w-0 flex-1">
-                            <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                    {post.user && <UserAvatar user={post.user} size="sm" />}
-                                    <Link
-                                        href={`/users/${post.user?.username}`}
-                                        className="font-medium text-foreground hover:underline"
-                                    >
-                                        {post.user?.username}
-                                    </Link>
-                                </div>
-                                <span>&middot;</span>
-                                <span>{timeAgo(post.created_at)}</span>
-                                <span>&middot;</span>
-                                <span>{t('post.views', { count: post.view_count })}</span>
-                            </div>
-
-                            <h1 className="mb-3 text-lg sm:text-2xl font-bold text-foreground">
-                                {post.title}
-                            </h1>
-
-                            <PostMeta post={post} />
-
-                            {/* Post body */}
-                            <div className="prose prose-sm sm:prose mt-4 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-headings:scroll-mt-20">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                                    {post.body}
-                                </ReactMarkdown>
-                            </div>
-
-                            {/* Images */}
-                            {post.images && post.images.length > 0 && (
-                                <div className="mt-4">
-                                    <ImageGallery images={post.images} />
-                                </div>
-                            )}
-
-                            {/* Tags */}
-                            {post.tags && post.tags.length > 0 && (
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {post.tags.map((tag) => (
-                                        <Badge key={tag.id} variant="outline" className="text-xs">
-                                            #{tag.name}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Share */}
-                            <div className="mt-4 flex items-center gap-4 border-t pt-4">
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(postUrl).then(() => {
-                                            setCopied(true);
-                                            setTimeout(() => setCopied(false), 2000);
-                                        });
-                                    }}
-                                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                    {copied ? (
-                                        <>
-                                            <Check className="h-4 w-4 text-green-500" />
-                                            {t('common.linkCopied')}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LinkIcon className="h-4 w-4" />
-                                            {t('common.copyLink')}
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-
-                            {/* Owner/admin actions */}
-                            {canEdit && (
-                                <div className="mt-4 flex gap-2 border-t pt-4">
-                                    <Link href={`/posts/${post.slug}/edit`}>
-                                        <Button variant="outline" size="sm">
-                                            {t('post.edit')}
-                                        </Button>
-                                    </Link>
-                                    <Link
-                                        href={`/posts/${post.slug}`}
-                                        method="delete"
-                                        as="button"
-                                        onBefore={() => confirm(t('post.deleteConfirm'))}
-                                    >
-                                        <Button variant="outline" size="sm" className="text-destructive">
-                                            {t('post.delete')}
-                                        </Button>
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Comments — tabbed by type */}
-                <div className="mt-6">
-                    <h2 className="mb-4 text-lg font-semibold text-foreground">
-                        {t('post.commentsHeading', { count: post.comment_count })}
-                    </h2>
+    const commentsPanel = (
+        <>
+            <button
+                onClick={() => setCommentsOpen(!commentsOpen)}
+                className="flex w-full items-center gap-2 text-lg font-semibold text-foreground hover:text-foreground/80 transition-colors"
+            >
+                <span>{t('post.commentsHeading', { count: post.comment_count })}</span>
+                <ChevronDown
+                    className={cn(
+                        'h-4 w-4 transition-transform duration-200',
+                        !commentsOpen && '-rotate-90',
+                    )}
+                />
+            </button>
+            {commentsOpen && (
+                <div className="mt-4 xl:overflow-y-auto xl:flex-1">
                     <Tabs defaultValue="discussion">
                         <TabsList className="w-full">
                             <TabsTrigger value="discussion" className="flex-1 gap-1.5">
@@ -239,7 +111,163 @@ export default function PostShow({ post, comments, commentCounts }: Props) {
                         </TabsContent>
                     </Tabs>
                 </div>
-                </div>
+            )}
+        </>
+    );
+
+    return (
+        <AppLayout>
+            <Head title={`${post.title} — Civic Forum`}>
+                <meta head-key="description" name="description" content={description} />
+                <meta head-key="og:site_name" property="og:site_name" content="Civic Forum" />
+                <meta head-key="og:title" property="og:title" content={ogTitle} />
+                <meta head-key="og:description" property="og:description" content={ogDescription} />
+                <meta head-key="og:type" property="og:type" content="article" />
+                <meta head-key="og:url" property="og:url" content={postUrl} />
+                <meta head-key="og:image" property="og:image" content={ogImage} />
+                <meta head-key="og:image:width" property="og:image:width" content="1200" />
+                <meta head-key="og:image:height" property="og:image:height" content="630" />
+                <meta head-key="og:image:alt" property="og:image:alt" content={post.title} />
+                <meta head-key="twitter:card" name="twitter:card" content="summary_large_image" />
+                <meta head-key="twitter:title" name="twitter:title" content={ogTitle} />
+                <meta head-key="twitter:description" name="twitter:description" content={ogDescription} />
+                <meta head-key="twitter:image" name="twitter:image" content={ogImage} />
+                <meta head-key="article:published_time" property="article:published_time" content={post.published_at ?? post.created_at} />
+                <meta head-key="article:author" property="article:author" content={post.user?.name ?? ''} />
+                {post.category && <meta head-key="article:section" property="article:section" content={post.category.translated_name} />}
+                <link rel="canonical" href={postUrl} />
+            </Head>
+
+            <div className="mx-auto max-w-[1400px] px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
+                <div className="flex gap-6">
+                    {/* Left sidebar: Table of Contents (lg+, collapsible) */}
+                    {headings.length > 0 && <TableOfContents headings={headings} />}
+
+                    {/* Center + Right */}
+                    <div className="min-w-0 flex-1 flex flex-col xl:flex-row xl:gap-6">
+                        {/* Center: Post content */}
+                        <div className="min-w-0 flex-1">
+                            <div className="overflow-hidden rounded-lg border bg-card">
+                                <div className="flex gap-2 p-3 sm:gap-4 sm:p-6">
+                                    {/* Vote column */}
+                                    <div className="shrink-0">
+                                        <VoteButtons
+                                            votableType="post"
+                                            votableId={post.id}
+                                            voteCount={post.vote_count}
+                                            userVote={post.user_vote ?? null}
+                                        />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                {post.user && <UserAvatar user={post.user} size="sm" />}
+                                                <Link
+                                                    href={`/users/${post.user?.username}`}
+                                                    className="font-medium text-foreground hover:underline"
+                                                >
+                                                    {post.user?.username}
+                                                </Link>
+                                            </div>
+                                            <span>&middot;</span>
+                                            <span>{timeAgo(post.created_at)}</span>
+                                            <span>&middot;</span>
+                                            <span>{t('post.views', { count: post.view_count })}</span>
+                                        </div>
+
+                                        <h1 className="mb-3 text-lg sm:text-2xl font-bold text-foreground">
+                                            {post.title}
+                                        </h1>
+
+                                        <PostMeta post={post} />
+
+                                        {/* Post body */}
+                                        <div className="prose prose-sm sm:prose mt-4 max-w-none text-foreground prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-headings:scroll-mt-20">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                                                {post.body}
+                                            </ReactMarkdown>
+                                        </div>
+
+                                        {/* Images */}
+                                        {post.images && post.images.length > 0 && (
+                                            <div className="mt-4">
+                                                <ImageGallery images={post.images} />
+                                            </div>
+                                        )}
+
+                                        {/* Tags */}
+                                        {post.tags && post.tags.length > 0 && (
+                                            <div className="mt-4 flex flex-wrap gap-2">
+                                                {post.tags.map((tag) => (
+                                                    <Badge key={tag.id} variant="outline" className="text-xs">
+                                                        #{tag.name}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Share */}
+                                        <div className="mt-4 flex items-center gap-4 border-t pt-4">
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(postUrl).then(() => {
+                                                        setCopied(true);
+                                                        setTimeout(() => setCopied(false), 2000);
+                                                    });
+                                                }}
+                                                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                                {copied ? (
+                                                    <>
+                                                        <Check className="h-4 w-4 text-green-500" />
+                                                        {t('common.linkCopied')}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <LinkIcon className="h-4 w-4" />
+                                                        {t('common.copyLink')}
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        {/* Owner/admin actions */}
+                                        {canEdit && (
+                                            <div className="mt-4 flex gap-2 border-t pt-4">
+                                                <Link href={`/posts/${post.slug}/edit`}>
+                                                    <Button variant="outline" size="sm">
+                                                        {t('post.edit')}
+                                                    </Button>
+                                                </Link>
+                                                <Link
+                                                    href={`/posts/${post.slug}`}
+                                                    method="delete"
+                                                    as="button"
+                                                    onBefore={() => confirm(t('post.deleteConfirm'))}
+                                                >
+                                                    <Button variant="outline" size="sm" className="text-destructive">
+                                                        {t('post.delete')}
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right sidebar: Comments (xl+ as sidebar, below on smaller) */}
+                        <div className={cn(
+                            'mt-6 xl:mt-0 xl:shrink-0',
+                            commentsOpen && 'xl:w-[400px]',
+                        )}>
+                            <div className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:flex xl:flex-col">
+                                {commentsPanel}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </AppLayout>
