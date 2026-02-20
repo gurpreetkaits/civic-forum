@@ -73,7 +73,7 @@ class BotDetection
     {
         $userAgent = $request->userAgent() ?? '';
 
-        // Allow search engine crawlers
+        // Allow search engine crawlers and social media preview bots
         $allowedBots = [
             'Googlebot',
             'Googlebot-Image',
@@ -91,6 +91,13 @@ class BotDetection
             'facebookexternalhit',
             'Twitterbot',
             'LinkedInBot',
+            'WhatsApp',
+            'TelegramBot',
+            'Slackbot',
+            'Discordbot',
+            'Applebot',
+            'PinterestBot',
+            'Redditbot',
         ];
 
         foreach ($allowedBots as $bot) {
@@ -116,18 +123,6 @@ class BotDetection
                 if (!preg_match('/Mozilla\/5\.0/', $userAgent)) {
                     return true;
                 }
-            }
-        }
-
-        // Check for missing essential headers (common in bots)
-        $essentialHeaders = [
-            'Accept',
-            'Accept-Language',
-        ];
-
-        foreach ($essentialHeaders as $header) {
-            if (!$request->hasHeader($header)) {
-                return true;
             }
         }
 
