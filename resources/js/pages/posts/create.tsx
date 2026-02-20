@@ -134,7 +134,7 @@ export default function PostCreate() {
                     {t('postForm.createHeading')}
                 </h1>
 
-                {errors.rate_limit && (
+                {(usePage<PageProps>().props.errors as Record<string, string>).rate_limit && (
                     <div className="mb-6 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/50 dark:bg-orange-950/20">
                         <div className="flex items-start gap-3">
                             <AlertCircle className="h-5 w-5 flex-shrink-0 text-orange-600 dark:text-orange-400" />
@@ -143,7 +143,7 @@ export default function PostCreate() {
                                     Daily Post Limit Reached
                                 </h3>
                                 <p className="mt-1 text-sm text-orange-800 dark:text-orange-200">
-                                    {errors.rate_limit}
+                                    {(usePage<PageProps>().props.errors as Record<string, string>).rate_limit}
                                 </p>
                             </div>
                         </div>
