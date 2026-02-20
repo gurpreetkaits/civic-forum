@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { timeAgo } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { LinkIcon, Check } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props extends PageProps {
     post: Post;
@@ -20,6 +22,7 @@ export default function PostShow({ post, comments }: Props) {
     const { auth, ziggy } = usePage<PageProps>().props;
     const isOwner = auth.user?.id === post.user_id;
     const { t } = useTranslation();
+    const [copied, setCopied] = useState(false);
 
     const baseUrl = ziggy.url;
     const postUrl = `${baseUrl}/posts/${post.slug}`;
@@ -103,6 +106,31 @@ export default function PostShow({ post, comments }: Props) {
                                     ))}
                                 </div>
                             )}
+
+                            {/* Share */}
+                            <div className="mt-4 flex items-center gap-4 border-t pt-4">
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(postUrl).then(() => {
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 2000);
+                                        });
+                                    }}
+                                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    {copied ? (
+                                        <>
+                                            <Check className="h-4 w-4 text-green-500" />
+                                            {t('common.linkCopied')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <LinkIcon className="h-4 w-4" />
+                                            {t('common.copyLink')}
+                                        </>
+                                    )}
+                                </button>
+                            </div>
 
                             {/* Owner actions */}
                             {isOwner && (

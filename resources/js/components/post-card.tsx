@@ -1,12 +1,13 @@
-import { Link } from '@inertiajs/react';
-import { MessageSquare, MapPin, Clock, Eye } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { MessageSquare, MapPin, Clock, Eye, LinkIcon, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Post } from '@/types';
+import { Post, PageProps } from '@/types';
 import { timeAgo } from '@/lib/utils';
 import VoteButtons from '@/components/vote-buttons';
 import UserAvatar from '@/components/user-avatar';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 
 interface PostCardProps {
     post: Post;
@@ -15,6 +16,16 @@ interface PostCardProps {
 
 export default function PostCard({ post, showCategory = true }: PostCardProps) {
     const { t } = useTranslation();
+    const { ziggy } = usePage<PageProps>().props;
+    const [copied, setCopied] = useState(false);
+
+    const copyLink = () => {
+        const url = `${ziggy.url}/posts/${post.slug}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
 
     const bodyExcerpt =
         post.body.length > 150 ? post.body.slice(0, 150) + '...' : post.body;
@@ -111,6 +122,22 @@ export default function PostCard({ post, showCategory = true }: PostCardProps) {
                             <Eye className="h-3.5 w-3.5" />
                             {post.view_count}
                         </span>
+                        <button
+                            onClick={copyLink}
+                            className="flex items-center gap-1 font-medium hover:text-foreground transition-colors"
+                        >
+                            {copied ? (
+                                <>
+                                    <Check className="h-3.5 w-3.5 text-green-500" />
+                                    {t('common.linkCopied')}
+                                </>
+                            ) : (
+                                <>
+                                    <LinkIcon className="h-3.5 w-3.5" />
+                                    {t('common.copyLink')}
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
 

@@ -142,6 +142,15 @@
   "common": {
     "postedBy": "Posted by",
     "comment": "comment",
-    "comments": "comments"
+    "comments": "comments",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied!"
+  },
+  "purpose": {
+    "heading": "Why Civic Forum?",
+    "description": "Civic Forum is a free, open platform built to give every Indian citizen a voice. Here you can raise civic issues in your city or state, discuss solutions with fellow citizens, and hold conversations that matter \u2014 from potholes to policy. No political agenda, no noise \u2014 just people talking about the issues that affect their daily lives."
+  },
+  "quotes": {
+    "label": "Thought of the moment"
   }
 }

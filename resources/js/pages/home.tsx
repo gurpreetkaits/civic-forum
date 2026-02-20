@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/AppLayout';
 import PostCard from '@/components/post-card';
 import FilterSidebar from '@/components/filter-sidebar';
+import QuotesTicker from '@/components/quotes-ticker';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { PaginatedData, Post, PageProps } from '@/types';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +31,20 @@ export default function Home({ posts, filters }: Props) {
                 <meta head-key="og:url" property="og:url" content={ziggy.url} />
                 <link rel="canonical" href={ziggy.url} />
             </Head>
+
+            <QuotesTicker />
+
+            {/* Purpose statement */}
+            <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+                <div className="rounded-lg border bg-card p-5 text-center">
+                    <h2 className="text-base font-semibold text-foreground">
+                        {t('purpose.heading')}
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {t('purpose.description')}
+                    </p>
+                </div>
+            </div>
 
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-6 lg:flex-row">
