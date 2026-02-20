@@ -20,18 +20,41 @@ class PostController extends Controller
             ->with(['user', 'category', 'state', 'city', 'images', 'tags'])
             ->firstOrFail();
 
-        // Load top-level comments with nested replies up to 3 levels
-        $comments = $post->comments()
+        $discussionEagerLoads = [
+            'user',
+            'replies.user',
+            'replies.replies.user',
+            'replies.replies.replies.user',
+        ];
+
+        // Questions eager-load solutions (replies) sorted by votes so best solutions rise
+        $questionEagerLoads = [
+            'user',
+            'replies' => fn ($q) => $q->orderByDesc('vote_count'),
+            'replies.user',
+            'replies.replies' => fn ($q) => $q->orderByDesc('vote_count'),
+            'replies.replies.user',
+            'replies.replies.replies.user',
+        ];
+
+        $baseQuery = fn () => $post->comments()
             ->whereNull('parent_id')
-            ->where('depth', 0)
-            ->with([
-                'user',
-                'replies.user',
-                'replies.replies.user',
-                'replies.replies.replies.user',
-            ])
-            ->orderByDesc('vote_count')
-            ->get();
+            ->where('depth', 0);
+
+        // Load comments grouped by type with type-specific sorting
+        $grouped = [
+            'discussion' => $baseQuery()->where('type', 'discussion')
+                ->with($discussionEagerLoads)
+                ->orderByDesc('vote_count')->get(),
+            'question'   => $baseQuery()->where('type', 'question')
+                ->with($questionEagerLoads)
+                ->orderByDesc('created_at')->get(),
+        ];
+
+        $commentCounts = [
+            'discussion' => $grouped['discussion']->count(),
+            'question'   => $grouped['question']->count(),
+        ];
 
         // Increment view count
         $post->increment('view_count');
@@ -44,19 +67,28 @@ class PostController extends Controller
                 ->where('votable_id', $post->id)
                 ->value('value');
 
-            // Vote on comments
-            $commentIds = $this->collectCommentIds($comments);
-            $commentVotes = $user->votes()
-                ->where('votable_type', 'App\\Models\\Comment')
-                ->whereIn('votable_id', $commentIds)
-                ->pluck('value', 'votable_id');
+            // Collect all comment IDs across all groups
+            $allCommentIds = [];
+            foreach ($grouped as $comments) {
+                $allCommentIds = array_merge($allCommentIds, $this->collectCommentIds($comments));
+            }
 
-            $this->attachVotesToComments($comments, $commentVotes);
+            if (!empty($allCommentIds)) {
+                $commentVotes = $user->votes()
+                    ->where('votable_type', 'App\\Models\\Comment')
+                    ->whereIn('votable_id', $allCommentIds)
+                    ->pluck('value', 'votable_id');
+
+                foreach ($grouped as $comments) {
+                    $this->attachVotesToComments($comments, $commentVotes);
+                }
+            }
         }
 
         return Inertia::render('posts/show', [
             'post' => $post,
-            'comments' => $comments,
+            'comments' => $grouped,
+            'commentCounts' => $commentCounts,
         ]);
     }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Comment } from '@/types';
 import { timeAgo } from '@/lib/utils';
@@ -73,8 +73,17 @@ export default function CommentItem({
                                 className="h-6 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
                                 onClick={() => setShowReplyForm(!showReplyForm)}
                             >
-                                <MessageSquare className="h-3 w-3" />
-                                {t('comments.reply')}
+                                {comment.type === 'question' ? (
+                                    <>
+                                        <Lightbulb className="h-3 w-3" />
+                                        {t('comments.proposeSolution')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <MessageSquare className="h-3 w-3" />
+                                        {t('comments.reply')}
+                                    </>
+                                )}
                             </Button>
                         )}
                     </div>
@@ -85,7 +94,11 @@ export default function CommentItem({
                             <CommentForm
                                 postId={postId}
                                 parentId={comment.id}
-                                placeholder={t('comments.replyTo', { username: comment.user?.username ?? 'user' })}
+                                placeholder={
+                                    comment.type === 'question'
+                                        ? t('commentTypes.solution.placeholder')
+                                        : t('comments.replyTo', { username: comment.user?.username ?? 'user' })
+                                }
                                 onSuccess={() => setShowReplyForm(false)}
                             />
                         </div>

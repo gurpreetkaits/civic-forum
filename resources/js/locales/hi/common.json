@@ -83,7 +83,29 @@
     "posting": "पोस्ट हो रहा है...",
     "replyButton": "उत्तर दें",
     "commentButton": "टिप्पणी करें",
-    "writeComment": "टिप्पणी लिखें..."
+    "writeComment": "टिप्पणी लिखें...",
+    "proposeSolution": "समाधान प्रस्तावित करें"
+  },
+  "tabs": {
+    "discussion": "चर्चा",
+    "questions": "प्रश्न"
+  },
+  "commentTypes": {
+    "discussion": {
+      "placeholder": "इस मुद्दे पर अपने विचार साझा करें...",
+      "noComments": "अभी तक कोई चर्चा नहीं। बातचीत शुरू करें!",
+      "addComment": "चर्चा में शामिल हों"
+    },
+    "question": {
+      "placeholder": "इस मुद्दे के बारे में प्रश्न पूछें...",
+      "noComments": "अभी तक कोई प्रश्न नहीं। पहला प्रश्न पूछें!",
+      "addComment": "प्रश्न पूछें"
+    },
+    "solution": {
+      "placeholder": "इस मुद्दे का समाधान प्रस्तावित करें...",
+      "noComments": "अभी तक कोई समाधान प्रस्तावित नहीं। अपने विचार साझा करें!",
+      "addComment": "समाधान प्रस्तावित करें"
+    }
   },
   "auth": {
     "loginTitle": "लॉग इन",

@@ -78,12 +78,15 @@ export interface PostImage {
     sort_order: number;
 }
 
+export type CommentType = 'discussion' | 'question' | 'solution';
+
 export interface Comment {
     id: number;
     post_id: number;
     user_id: number;
     parent_id?: number;
     body: string;
+    type: CommentType;
     vote_count: number;
     depth: number;
     created_at: string;
@@ -92,6 +95,12 @@ export interface Comment {
     replies?: Comment[];
     user_vote?: number | null;
 }
+
+export type TabType = 'discussion' | 'question';
+
+export type GroupedComments = Record<TabType, Comment[]>;
+
+export type CommentCounts = Record<TabType, number>;
 
 export interface Tag {
     id: number;

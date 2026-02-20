@@ -83,7 +83,29 @@
     "posting": "Posting...",
     "replyButton": "Reply",
     "commentButton": "Comment",
-    "writeComment": "Write a comment..."
+    "writeComment": "Write a comment...",
+    "proposeSolution": "Propose a solution"
+  },
+  "tabs": {
+    "discussion": "Discussion",
+    "questions": "Questions"
+  },
+  "commentTypes": {
+    "discussion": {
+      "placeholder": "Share your thoughts on this issue...",
+      "noComments": "No discussion yet. Start the conversation!",
+      "addComment": "Join the discussion"
+    },
+    "question": {
+      "placeholder": "Ask a question about this issue...",
+      "noComments": "No questions yet. Ask the first question!",
+      "addComment": "Ask a question"
+    },
+    "solution": {
+      "placeholder": "Propose a solution to this issue...",
+      "noComments": "No solutions proposed yet. Share your ideas!",
+      "addComment": "Propose a solution"
+    }
   },
   "auth": {
     "loginTitle": "Log in",

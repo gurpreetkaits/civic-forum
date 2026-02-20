@@ -5,22 +5,24 @@ import ImageGallery from '@/components/image-gallery';
 import PostMeta from '@/components/post-meta';
 import UserAvatar from '@/components/user-avatar';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Post, Comment, PageProps } from '@/types';
+import { Post, GroupedComments, CommentCounts, PageProps } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { timeAgo } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { LinkIcon, Check } from 'lucide-react';
+import { LinkIcon, Check, MessageSquare, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface Props extends PageProps {
     post: Post;
-    comments: Comment[];
+    comments: GroupedComments;
+    commentCounts: CommentCounts;
 }
 
-export default function PostShow({ post, comments }: Props) {
+export default function PostShow({ post, comments, commentCounts }: Props) {
     const { auth, ziggy } = usePage<PageProps>().props;
     const canEdit = auth.user?.id === post.user_id || auth.user?.is_admin;
     const { t } = useTranslation();
@@ -160,12 +162,39 @@ export default function PostShow({ post, comments }: Props) {
                     </div>
                 </div>
 
-                {/* Comments */}
+                {/* Comments — tabbed by type */}
                 <div className="mt-6">
                     <h2 className="mb-4 text-lg font-semibold text-foreground">
                         {t('post.commentsHeading', { count: post.comment_count })}
                     </h2>
-                    <CommentSection comments={comments} postId={post.id} />
+                    <Tabs defaultValue="discussion">
+                        <TabsList className="w-full">
+                            <TabsTrigger value="discussion" className="flex-1 gap-1.5">
+                                <MessageSquare className="h-4 w-4" />
+                                <span>{t('tabs.discussion')}</span>
+                                {commentCounts.discussion > 0 && (
+                                    <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs">
+                                        {commentCounts.discussion}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                            <TabsTrigger value="question" className="flex-1 gap-1.5">
+                                <HelpCircle className="h-4 w-4" />
+                                <span>{t('tabs.questions')}</span>
+                                {commentCounts.question > 0 && (
+                                    <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs">
+                                        {commentCounts.question}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="discussion">
+                            <CommentSection comments={comments.discussion} postId={post.id} commentType="discussion" />
+                        </TabsContent>
+                        <TabsContent value="question">
+                            <CommentSection comments={comments.question} postId={post.id} commentType="question" />
+                        </TabsContent>
+                    </Tabs>
                 </div>
             </div>
         </AppLayout>

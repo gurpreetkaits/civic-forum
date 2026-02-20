@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { Comment, PageProps } from '@/types';
+import { Comment, CommentType, PageProps } from '@/types';
 import CommentItem from '@/components/comment-item';
 import CommentForm from '@/components/comment-form';
 import { useTranslation } from 'react-i18next';
@@ -8,11 +8,13 @@ import { useLoginDialog } from '@/components/login-dialog';
 interface CommentSectionProps {
     comments: Comment[];
     postId: number;
+    commentType?: CommentType;
 }
 
 export default function CommentSection({
     comments,
     postId,
+    commentType = 'discussion',
 }: CommentSectionProps) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
@@ -25,20 +27,17 @@ export default function CommentSection({
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold">
-                {t('comments.heading', { count: comments.length })}
-            </h3>
-
             {/* Add a comment form for authenticated users */}
             {user ? (
                 <div className="rounded-lg border bg-card p-4">
                     <p className="mb-2 text-sm font-medium text-muted-foreground">
-                        {t('comments.addComment')}
+                        {t(`commentTypes.${commentType}.addComment`)}
                     </p>
                     <CommentForm
                         postId={postId}
                         parentId={null}
-                        placeholder={t('comments.placeholder')}
+                        placeholder={t(`commentTypes.${commentType}.placeholder`)}
+                        commentType={commentType}
                     />
                 </div>
             ) : (
@@ -67,7 +66,7 @@ export default function CommentSection({
                 </div>
             ) : (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                    {t('comments.noComments')}
+                    {t(`commentTypes.${commentType}.noComments`)}
                 </p>
             )}
         </div>

@@ -2,12 +2,14 @@ import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from 'react-i18next';
+import { CommentType } from '@/types';
 
 interface CommentFormProps {
     postId: number;
     parentId: number | null;
     onSuccess?: () => void;
     placeholder?: string;
+    commentType?: CommentType;
 }
 
 export default function CommentForm({
@@ -15,11 +17,13 @@ export default function CommentForm({
     parentId,
     onSuccess,
     placeholder,
+    commentType = 'discussion',
 }: CommentFormProps) {
     const { t } = useTranslation();
     const { data, setData, post, processing, reset, errors } = useForm({
         body: '',
         parent_id: parentId,
+        type: commentType,
     });
 
     const handleSubmit = (e: React.FormEvent) => {

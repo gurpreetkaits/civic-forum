@@ -12,16 +12,20 @@ class CommentController extends Controller
     public function store(StoreCommentRequest $request, Post $post)
     {
         $depth = 0;
+        $type = $request->input('type', 'discussion');
 
         if ($request->filled('parent_id')) {
             $parent = Comment::findOrFail($request->parent_id);
             $depth = $parent->depth + 1;
+            // Replies to questions become solutions; otherwise inherit parent type
+            $type = $parent->type === 'question' ? 'solution' : $parent->type;
         }
 
         $post->comments()->create([
             'user_id' => $request->user()->id,
             'parent_id' => $request->parent_id,
             'body' => $request->body,
+            'type' => $type,
             'depth' => $depth,
         ]);
 
