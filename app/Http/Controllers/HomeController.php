@@ -21,7 +21,7 @@ class HomeController extends Controller
             $query->where('state_id', $request->state_id);
         }
 
-        $sort = $request->get('sort', 'trending');
+        $sort = $request->get('sort', 'newest');
         $query = match($sort) {
             'newest' => $query->latest('published_at'),
             'most-voted' => $query->orderByDesc('vote_count'),

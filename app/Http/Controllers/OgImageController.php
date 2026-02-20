@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
@@ -14,21 +13,26 @@ class OgImageController extends Controller
     private const WIDTH = 1200;
     private const HEIGHT = 630;
     private const PADDING = 60;
-    private const CACHE_TTL = 3600; // 1 hour
-
     public function show(string $slug)
     {
         $post = Post::where('slug', $slug)
             ->with(['user', 'category', 'state', 'city', 'images'])
             ->firstOrFail();
 
-        $cacheKey = "og_image:{$post->id}:{$post->updated_at->timestamp}";
+        $filename = "og-images/{$post->id}-{$post->updated_at->timestamp}.png";
+        $disk = Storage::disk('local');
 
-        $imageData = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($post) {
-            return $this->generate($post);
-        });
+        if (!$disk->exists($filename)) {
+            // Clean up old versions for this post
+            foreach ($disk->files('og-images') as $file) {
+                if (str_starts_with(basename($file), "{$post->id}-")) {
+                    $disk->delete($file);
+                }
+            }
+            $disk->put($filename, $this->generate($post));
+        }
 
-        return response($imageData, 200, [
+        return response($disk->get($filename), 200, [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'public, max-age=86400',
         ]);
@@ -116,10 +120,10 @@ class OgImageController extends Controller
         // Location
         $location = collect([$post->city?->name, $post->state?->name])->filter()->join(', ');
 
-        // Stats line: votes · comments · location
-        $statsText = "▲ {$post->vote_count}  ·  💬 {$post->comment_count}";
+        // Stats line: votes · comments · location (plain ASCII — GD can't render emoji)
+        $statsText = "{$post->vote_count} votes  ·  {$post->comment_count} comments";
         if ($location) {
-            $statsText .= "  ·  📍 {$location}";
+            $statsText .= "  ·  {$location}";
         }
 
         $image->text($statsText, $x, $bottomY, function (FontFactory $f) use ($font) {
