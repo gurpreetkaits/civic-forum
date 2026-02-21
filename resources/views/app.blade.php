@@ -23,6 +23,36 @@
                 $ogState = $ogPost['state']['name'] ?? null;
                 $ogLocation = collect([$ogCity, $ogState])->filter()->join(', ');
                 $ogFullDesc = $ogLocation ? $ogLocation . ' — ' . $ogDesc : $ogDesc;
+
+                $ogJsonLd = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Article',
+                    'headline' => $ogPost['title'],
+                    'description' => $ogFullDesc,
+                    'image' => $ogImageUrl,
+                    'datePublished' => $ogPost['published_at'] ?? $ogPost['created_at'],
+                    'dateModified' => $ogPost['updated_at'],
+                    'author' => [
+                        '@type' => 'Person',
+                        'name' => $ogPost['user']['name'] ?? 'Jan Rashtra',
+                    ],
+                    'publisher' => [
+                        '@type' => 'Organization',
+                        'name' => 'Jan Rashtra',
+                        'url' => $ogBaseUrl,
+                        'logo' => [
+                            '@type' => 'ImageObject',
+                            'url' => $ogBaseUrl . '/logo.png',
+                        ],
+                    ],
+                    'mainEntityOfPage' => [
+                        '@type' => 'WebPage',
+                        '@id' => $ogPostUrl,
+                    ],
+                ];
+                if (isset($ogPost['category'])) {
+                    $ogJsonLd['articleSection'] = $ogPost['category']['name'];
+                }
             @endphp
             <meta property="og:site_name" content="Civic Forum">
             <meta property="og:title" content="{{ $ogTitle }}">
@@ -35,60 +65,29 @@
             <meta property="og:image:alt" content="{{ $ogPost['title'] }}">
             <meta name="twitter:card" content="summary_large_image">
             <meta name="twitter:title" content="{{ $ogTitle }}">
-            <meta name="twitter:description" content="{{ $ogDescription }}">
-            <meta name="twitter:image" content="{{ $ogImage }}">
-            <meta name="description" content="{{ $ogDescription }}">
-            <link rel="canonical" href="{{ $postUrl }}">
-
-            {{-- JSON-LD Structured Data for SEO --}}
-            <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "Article",
-                "headline": "{{ $post['title'] }}",
-                "description": "{{ $ogDescription }}",
-                "image": "{{ $ogImage }}",
-                "datePublished": "{{ $post['published_at'] ?? $post['created_at'] }}",
-                "dateModified": "{{ $post['updated_at'] }}",
-                "author": {
-                    "@type": "Person",
-                    "name": "{{ $post['user']['name'] ?? 'Jan Rashtra' }}"
-                },
-                "publisher": {
-                    "@type": "Organization",
-                    "name": "Jan Rashtra",
-                    "url": "{{ $baseUrl }}",
-                    "logo": {
-                        "@type": "ImageObject",
-                        "url": "{{ $baseUrl }}/logo.png"
-                    }
-                },
-                "mainEntityOfPage": {
-                    "@type": "WebPage",
-                    "@id": "{{ $postUrl }}"
-                }
-                @if(isset($post['category']))
-                ,"articleSection": "{{ $post['category']['name'] }}"
-                @endif
-            }
-            </script>
+            <meta name="twitter:description" content="{{ $ogFullDesc }}">
+            <meta name="twitter:image" content="{{ $ogImageUrl }}">
+            <meta name="description" content="{{ $ogDesc }}">
+            <link rel="canonical" href="{{ $ogPostUrl }}">
+            <script type="application/ld+json">{!! json_encode($ogJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
         @else
             {{-- Default site meta for non-post pages --}}
             <meta name="description" content="Jan Rashtra - India's civic forum for citizens to discuss local issues, governance, and community matters.">
-            <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "name": "Jan Rashtra",
-                "url": "{{ config('app.url') }}",
-                "description": "India's civic forum for citizens to discuss local issues, governance, and community matters.",
-                "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": "{{ config('app.url') }}/search?q={search_term_string}",
-                    "query-input": "required name=search_term_string"
-                }
-            }
-            </script>
+            @php
+                $siteJsonLd = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'WebSite',
+                    'name' => 'Jan Rashtra',
+                    'url' => config('app.url'),
+                    'description' => "India's civic forum for citizens to discuss local issues, governance, and community matters.",
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => config('app.url') . '/search?q={search_term_string}',
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ];
+            @endphp
+            <script type="application/ld+json">{!! json_encode($siteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
         @endif
 
         <!-- Fonts -->
