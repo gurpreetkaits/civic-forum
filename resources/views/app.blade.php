@@ -35,8 +35,58 @@
             <meta name="twitter:title" content="{{ $ogTitle }}">
             <meta name="twitter:description" content="{{ $ogDescription }}">
             <meta name="twitter:image" content="{{ $ogImage }}">
-            <meta name="description" content="{{ $description }}">
+            <meta name="description" content="{{ $ogDescription }}">
             <link rel="canonical" href="{{ $postUrl }}">
+
+            {{-- JSON-LD Structured Data for SEO --}}
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": "{{ $post['title'] }}",
+                "description": "{{ $ogDescription }}",
+                "image": "{{ $ogImage }}",
+                "datePublished": "{{ $post['published_at'] ?? $post['created_at'] }}",
+                "dateModified": "{{ $post['updated_at'] }}",
+                "author": {
+                    "@type": "Person",
+                    "name": "{{ $post['user']['name'] ?? 'Jan Rashtra' }}"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "Jan Rashtra",
+                    "url": "{{ $baseUrl }}",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "{{ $baseUrl }}/logo.png"
+                    }
+                },
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": "{{ $postUrl }}"
+                }
+                @if(isset($post['category']))
+                ,"articleSection": "{{ $post['category']['name'] }}"
+                @endif
+            }
+            </script>
+        @else
+            {{-- Default site meta for non-post pages --}}
+            <meta name="description" content="Jan Rashtra - India's civic forum for citizens to discuss local issues, governance, and community matters.">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Jan Rashtra",
+                "url": "{{ config('app.url') }}",
+                "description": "India's civic forum for citizens to discuss local issues, governance, and community matters.",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "{{ config('app.url') }}/search?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            }
+            </script>
         @endif
 
         <!-- Fonts -->

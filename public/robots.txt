@@ -1,2 +1,19 @@
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://janrashtra.in/sitemap.xml
+
+# Disallow admin/api routes
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /password
+
+# Allow crawlers to index all public content
+Allow: /posts/
+Allow: /categories/
+Allow: /search
